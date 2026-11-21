@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Inbox - Links Shared With You{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <!-- Banner Text matching Figure 6 -->
+        <div class="page-header-text mb-4 text-center">
+            <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-25 px-4 py-2 rounded-pill mb-2">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span class="small fw-semibold">All links shared with you, analyzed for security</span>
+            </div>
+            <h1 class="fw-bold">Shared Links Inbox</h1>
+        </div>
+
+        <div class="security-card">
+            <!-- Header and Filter Pills matching Figure 6 -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom">
+                <div>
+                    <h4 class="card-title-lg mb-1">Links Shared With You</h4>
+                    <span class="text-muted small">{{ links|length }} total links</span>
+                </div>
+
+                <!-- Filter Pills -->
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('inbox', filter='all') }}"
+                       class="filter-pill {% if current_filter == 'all' %}active{% endif %}">
+                        <i class="fa-solid fa-list-ul"></i> All ({{ all_count }})
+                    </a>
+                    <a href="{{ url_for('inbox', filter='safe') }}"
+                       class="filter-pill {% if current_filter == 'safe' %}active{% endif %}">
+                        <i class="fa-solid fa-shield-check text-success"></i> Safe ({{ safe_count }})
+                    </a>
+                    <a href="{{ url_for('inbox', filter='phishing') }}"
+                       class="filter-pill {% if current_filter == 'phishing' %}active{% endif %}">
+                        <i class="fa-solid fa-triangle-exclamation text-warning"></i> Phishing ({{ phishing_count }})
+                    </a>
+                    <a href="{{ url_for('inbox', filter='malware') }}"
+                       class="filter-pill {% if current_filter == 'malware' %}active{% endif %}">
+                        <i class="fa-solid fa-bug text-danger"></i> Malware ({{ malware_count }})
+                    </a>
+                    <a href="{{ url_for('inbox', filter='defacement') }}"
+                       class="filter-pill {% if current_filter == 'defacement' %}active{% endif %}">
+                        <i class="fa-solid fa-skull text-secondary"></i> Defacement ({{ defacement_count }})
+                    </a>
+                </div>
+            </div>
+
+            <!-- Links List matching Figure 6 -->
+            {% if links %}
+                <div class="inbox-cards-list">
+                    {% for item in links %}
+                        <div class="inbox-item-card align-items-center">
+                            <!-- Left: User Avatar & Info -->
+                            <div class="d-flex align-items-center gap-3 overflow-hidden me-3">
+                                <div class="avatar-icon-box flex-shrink-0">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold text-dark">{{ item.sender.email }}</span>
+                                        <span class="badge bg-light text-muted small fw-normal">
+                                            <i class="fa-regular fa-clock me-1"></i> Shared recently
+                                        </span>
+                                    </div>
+                                    <div class="url-text text-truncate mt-1">
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-muted me-1"></i>
+                                        <span>{{ item.url }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Threat Badge with Warning Subtext -->
+                            <div class="text-end flex-shrink-0">
+                                {% if item.prediction == 'Benign' %}
+                                    <span class="badge-threat badge-benign">
+                                        <i class="fa-solid fa-shield-check"></i> Safe
+                                    </span>
+                                    <div class="text-success small mt-1 fw-semibold">
+                                        <i class="fa-solid fa-check-double me-1"></i> Verified Safe
+                                    </div>
+                                {% elif item.prediction == 'Phishing' %}
+                                    <span class="badge-threat badge-phishing">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> Phishing Risk
+                                    </span>
+                                    <div class="text-danger small mt-1 fw-bold">
+                                        <i class="fa-solid fa-ban me-1"></i> Do Not Open
+                                    </div>
+                                {% elif item.prediction == 'Malware' %}
+                                    <span class="badge-threat badge-malware">
+                                        <i class="fa-solid fa-bug"></i> Malware
+                                    </span>
+                                    <div class="text-danger small mt-1 fw-bold">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> High Threat
+                                    </div>
+                                {% else %}
+                                    <span class="badge-threat badge-defacement">
+                                        <i class="fa-solid fa-skull"></i> Defacement
+                                    </span>
+                                    <div class="text-muted small mt-1 fw-semibold">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Compromised
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-filter-circle-xmark fa-3x mb-3 text-secondary opacity-50"></i>
+                    <h5>No links found in this category</h5>
+                    <p class="small mb-3">Try choosing another filter pill or ask a peer to share links with you.</p>
+                    <a href="{{ url_for('inbox', filter='all') }}" class="btn btn-outline-primary btn-sm px-3">
+                        Show All Links
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
